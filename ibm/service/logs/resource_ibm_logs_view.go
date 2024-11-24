@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -575,8 +576,14 @@ func ResourceIbmLogsViewApisViewsV1SelectedFiltersToMap(model *logsv0.ApisViewsV
 			if err != nil {
 				return modelMap, err
 			}
+			if len(filtersItemMap["selected_values"].(map[string]bool)) == 0 {
+				continue
+			}
 			filters = append(filters, filtersItemMap)
 		}
+		sort.Slice(filters, func(i, j int) bool {
+			return filters[i]["name"].(string) < filters[j]["name"].(string)
+		})
 		modelMap["filters"] = filters
 	}
 	return modelMap, nil
